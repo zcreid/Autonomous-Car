@@ -26,25 +26,6 @@ class Motor:
         GPIO.output(self.In2B, m2_b)
         self.pwmA.ChangeDutyCycle(speed)
         self.pwmB.ChangeDutyCycle(speed)
-        
-    def move(self,speed=0.5,turn=0,t=0):
-        speed *=100
-        turn *=70
-        leftSpeed = speed-turn
-        rightSpeed = speed+turn
-
-        if leftSpeed>100: leftSpeed =100
-        elif leftSpeed<-100: leftSpeed = -100
-        if rightSpeed>100: rightSpeed =100
-        elif rightSpeed<-100: rightSpeed = -100
-        #print(leftSpeed,rightSpeed)
-        self.pwmA.ChangeDutyCycle(abs(leftSpeed))
-        self.pwmB.ChangeDutyCycle(abs(rightSpeed))
-        if leftSpeed>0:GPIO.output(self.In1A,GPIO.HIGH);GPIO.output(self.In2A,GPIO.LOW)
-        else:GPIO.output(self.In1A,GPIO.LOW);GPIO.output(self.In2A,GPIO.HIGH)
-        if rightSpeed>0:GPIO.output(self.In1B,GPIO.HIGH);GPIO.output(self.In2B,GPIO.LOW)
-        else:GPIO.output(self.In1B,GPIO.LOW);GPIO.output(self.In2B,GPIO.HIGH)
-        sleep(t)
 
     def stop(self):
         self.set_motors(0, 0, 0, 0, 0)
@@ -53,28 +34,35 @@ class Motor:
         self.stop()
         GPIO.cleanup()
 
-
 def main():
+    # Initialize pygame for joystick handling
+    pygame.init()
     motor = Motor(12, 1, 7, 13, 6, 5)
     try:
         while True:
             js_data = getJS()
-            dpad_x, dpad_y = js_data['axis1'], js_data['axis2']
+            # Check for joystick input and make sure it's returning expected data
+            print(f"Joystick Data: {js_data}")  # Debugging output
+            
+            # Getting joystick values
+            dpad_x, dpad_y = js_data.get('axis1', 0), js_data.get('axis2', 0)
+            print(f"Joystick X: {dpad_x}, Y: {dpad_y}")  # Debugging output
 
-            if dpad_y > 0.5:
+            # Control logic based on joystick values
+            if dpad_y > 0.5:  # Move forward
                 motor.set_motors(1, 0, 1, 0, 60)
-            elif dpad_y < -0.5:
+            elif dpad_y < -0.5:  # Move backward
                 motor.set_motors(0, 1, 0, 1, 60)
-            elif dpad_x < -0.5:
+            elif dpad_x < -0.5:  # Turn left
                 motor.set_motors(0, 1, 1, 0, 50)
-            elif dpad_x > 0.5:
+            elif dpad_x > 0.5:  # Turn right
                 motor.set_motors(1, 0, 0, 1, 50)
-            else:
+            else:  # Stop if joystick is centered
                 motor.stop()
 
             sleep(0.1)
     except KeyboardInterrupt:
-        print("Stopping")
+        print("Stopping...")
     finally:
         motor.cleanup()
         pygame.quit()

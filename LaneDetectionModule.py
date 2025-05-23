@@ -1,5 +1,5 @@
 import cv2
-import utlis as utlis 
+import utlis 
 
 def getLaneCurve(img):
 

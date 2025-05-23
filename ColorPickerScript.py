@@ -7,7 +7,7 @@ frameHeight = 480
 
 
 # Initialize video capture for a video file
-video_path = r'C:\Users\Cloud\Desktop\OpenCv\Images\vid1.mp4'
+video_path = r'C:\Users\Cloud\Desktop\\Images\vid1.mp4'
 cap = cv2.VideoCapture(video_path)
 cap.set(3, frameWidth)  # Set width
 cap.set(4, frameHeight)  # Set height
